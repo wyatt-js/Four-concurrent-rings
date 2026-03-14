@@ -6,6 +6,14 @@
 
 ## Explaining Architecture and Concurrency Designs
 
+### Elxir
+
+Enter with `iex`
+
+Optionally start the Beam Monitor with `BeamMon.start()`
+
+Then `Main.start(N, H)`
+
 
 ---
 
