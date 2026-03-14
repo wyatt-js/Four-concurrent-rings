@@ -14,14 +14,19 @@ Optionally start the Beam Monitor with `BeamMon.start()`
 
 Then `Main.start(N, H)`
 
-- Route inputs correctly
+Inputs are correctly routed by first classifying the input integer (either negative, zero, positive even, or positive odd). The token is then sent as a message {:token, token_id, ring_id, x} to that ring's manager process. Token Id keeps increasing by 1 so every token is unique.
 
-- Execute exactly H hops per token
-- Enforce FIFO per ring
-- Enforce single in-flight token per ring
-- Avoid deadlock
-- Shut down cleanly after `done`
-- Terminate all threads/processes properly
+Exactly H hops are executed per token thanks to the hops counter. Once a node changes the current value, hops is decremented. If hops == 0, it is the last hop and it sends a completed message to the manager along with the final token value. Otherwise, it continues the hops to the next node, and loops around if H > N.
+
+FIFO is enforced within each ring using a queue (strictly FIFO) which is built into elixir. The ring manager can be idle, where the first available (first in) token in the queue is processed, or busy, where a new token is pushed on the queue with :queue.in. Completed messages make the manager pop from the queue.
+
+Each ring has only a single in-flight token thanks to the ring manager processes which only injects a token when transitioning from idle to busy or when a completed message arrives.
+
+Deadlocks are avoided because each ring has an independent set of processes, and messages are not sent to eachother. Also, no node within the rings waits on responses from the manager or previous nodes.
+
+Shutdown happens cleanly because 'done' sends a message to all ring managers. If a ring is busy, it won't accept new tokens, but it finishes the current token with the rest of the queue.
+
+All processes are terminated properly because of node_loop, where stop is forwarded to the next neighbor, and around the ring.
 
 ### Java
 
