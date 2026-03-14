@@ -6,7 +6,26 @@
 
 ## Explaining Architecture and Concurrency Designs
 
+### Elxir
 
+Enter with `iex`
+
+Optionally start the Beam Monitor with `BeamMon.start()`
+
+Then `Main.start(N, H)`
+
+- Route inputs correctly
+
+- Execute exactly H hops per token
+- Enforce FIFO per ring
+- Enforce single in-flight token per ring
+- Avoid deadlock
+- Shut down cleanly after `done`
+- Terminate all threads/processes properly
+
+### Java
+
+Enter with 
 ---
 
 ## 1. Requirements / Overview
