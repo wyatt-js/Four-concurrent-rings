@@ -29,8 +29,21 @@ Shutdown happens cleanly because 'done' sends a message to all ring managers. If
 All processes are terminated properly because of node_loop, where stop is forwarded to the next neighbor, and around the ring.
 
 ### Java
+Enter with `javac -d out src/main/*.java` then `java -cp out main.Main`
 
-Enter with 
+Optionally the JVM Monitor starts automatically with `JvmMon.start(5_000)`
+
+Then enter N and H when prompted, and start typing integers.
+
+Inputs are first classified as negative, zero, positive even, or positive odd. Then the token {:token, token_id, ring_id, x} is sent to the correct ring manager. The token_id increases by 1 so each token is unique.
+
+Each token makes exactly H hops using a hops counter. Every time a node updates the value, hops decreases by 1. When hops == 0, the node sends the final result to the manager. Otherwise, the token continues to the next node and loops if H > N.
+
+FIFO order is maintained using Elixir’s built-in queue. If the manager is busy, new tokens are added to the queue. When a token finishes, the manager processes the next one.
+
+Each ring has only one active token at a time. Deadlocks are avoided because rings work independently and nodes do not wait for responses.
+
+Shutdown works by sending a done message to all managers, and nodes stop cleanly by passing a stop message around the ring.
 ---
 
 ## 1. Requirements / Overview
